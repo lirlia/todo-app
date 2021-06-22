@@ -227,11 +227,11 @@ func setupRouter() *gin.Engine {
 
 	r := gin.Default()
 	r.Static("/static", "../static")
-	r.LoadHTMLGlob("../templates/*.tmpl")
+	r.LoadHTMLGlob("../templates/*.*")
 
 	fmt.Println(tasks)
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{})
+		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 	r.POST("/mypage", func(c *gin.Context) {
 		var account = Account{
@@ -239,11 +239,10 @@ func setupRouter() *gin.Engine {
 			Password: c.PostForm("password"),
 		}
 
-		c.HTML(http.StatusOK, "mypage.tmpl", gin.H{
+		c.HTML(http.StatusOK, "mypage.html", gin.H{
 			"username": account.Name,
 			"tasks":    tasks,
 		})
-		//c.String(http.StatusOK, "home")
 	})
 
 	return r

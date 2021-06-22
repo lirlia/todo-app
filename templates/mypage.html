@@ -1,0 +1,70 @@
+{{ template "header.html" .}}
+<section class="hero is-small is-link">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-8-desktop is-offset-2-desktop">
+          <h1 class="title is-4 is-spaced">
+            Excellent ToDo
+          </h1>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-8-desktop is-offset-2-desktop">
+        <div class="content">
+
+          <div class="panel is-primary">
+            <p class="panel-heading">
+              {{.username}}さんの ToDoリスト
+            </p>
+            <div class="columns is-narrow">
+              <div class="column is-1 ml-5">
+                <button id="add-task" class="button is-link py-0">追加</button>
+              </div>
+              <div class="column is-9 ml-5">
+                <input id="add-task-value" class="input is-link" type="text" minlength="1" placeholder="新しく追加する">
+              </div>
+            </div>
+
+            <p class="panel-tabs">
+              <a class="is-active">All</a>
+              <!-- TODO: タグ付け作る
+              <a>Public</a>
+              <a>Private</a>
+              <a>Sources</a>
+              <a>Forks</a>-->
+            </p>
+            <!--既存のTODO-->
+            <div id="task-list">
+              {{range .tasks}}
+              <div class="panel-block columns py-1">
+                <div class="checkbox column is-1 py-0 has-text-centered">
+                  <input class="task-checkbox" type="checkbox" {{if .Done}}checked{{end}}>
+                </div>
+                <div class="column py-0 {{if .Done}}line-throungh{{end}}">
+                  {{.Name}}
+                </div>
+                <div class="column is-1 py-0">
+                  <button class="delete-task button is-danger is-outlined is-small">
+                    <span>削除</span>
+                    <span class="icon is-small">
+                      <i class="fas fa-times"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              {{end}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+</body>
+
+</html>
