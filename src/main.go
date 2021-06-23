@@ -2,47 +2,12 @@ package main
 
 import (
 	"net/http"
-	"time"
+
+	"todo.app/controller"
+	"todo.app/model"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	logger "gorm.io/gorm/logger"
 )
-
-const (
-	DB_NAME            = "todo"
-	DB_USER            = "root"
-	DB_PASS            = "password"
-	DB_HOST            = "localhost"
-	DB_PORT            = "3306"
-	DB_USER_TABLE_NAME = "user"
-	DB_TASK_TABLE_NAME = "task"
-
-	DB_INSERT_BATCHSIZE = 3000
-
-	// SetMaxIdleConnsはアイドル状態のコネクションプール内の最大数を設定します
-	DB_MAX_IDLE_CONN = 10
-
-	// SetMaxOpenConnsは接続済みのデータベースコネクションの最大数を設定します
-	DB_MAX_OPEN_CONN = 100
-
-	// SetConnMaxLifetimeは再利用され得る最長時間を設定します
-	DB_MAX_LIFETIME = time.Hour
-)
-
-// テーブル名を変換するために定義
-type Tables interface {
-	TableName() string
-}
-
-// テーブル名を決定する
-func (User) TableName() string {
-	return DB_USER_TABLE_NAME
-}
-func (Task) TableName() string {
-	return DB_TASK_TABLE_NAME
-}
 
 /*
 // MapからStructへの変換
@@ -143,25 +108,9 @@ func main() {
 	wg.Wait()
 	fmt.Println("finish")
 }
-*/
-type User struct {
-	UserID    int `gorm:"primaryKey"`
-	Name      string
-	Password  string
-	CreatedAt time.Time
-}
-
-type Task struct {
-	TaskID    int `gorm:"primaryKey"`
-	Name      string
-	Done      bool
-	Message   string
-	UserID    int `gorm:"foreignKey"`
-	CreatedAt time.Time
-}
 
 func setTasktoList(task_id int, name string, msg string, done bool, user_id int) (r *Task) {
-	r = new(Task)
+	r = new(model.Task)
 	r.TaskID = task_id
 	r.Name = name
 	r.Message = msg
@@ -169,13 +118,14 @@ func setTasktoList(task_id int, name string, msg string, done bool, user_id int)
 	r.UserID = user_id
 	return r
 }
+*/
 
 //type TaskList = []*Task
 
-func setupRouter(db *gorm.DB) *gin.Engine {
+func setupRouter() *gin.Engine {
 
 	//	var tasks TaskList
-	var task = Task{}
+	//var task = model.Task{}
 
 	//	tasks = append(tasks, setTasktoList(1, "これはテストです1", "ああああああ", false, 1))
 	//	tasks = append(tasks, setTasktoList(2, "これはテストです2", "ああああああ", true, 1))
@@ -185,74 +135,35 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	r.Static("/static", "../static")
 	r.LoadHTMLGlob("../templates/*.*")
 
+	task_r := r.Group("/task")
+	{
+		v1 := task_r.Group("/v1")
+		{
+			v1.POST("/add", controller.TaskAdd)
+			v1.GET("/list", controller.TaskList)
+			v1.PUT("/update", controller.TaskUpdate)
+			v1.DELETE("/delete", controller.TaskDelete)
+		}
+	}
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 	r.POST("/mypage", func(c *gin.Context) {
-		var user = User{
+		var user = model.User{
 			Name:     c.PostForm("username"),
 			Password: c.PostForm("password"),
 		}
 
 		c.HTML(http.StatusOK, "mypage.html", gin.H{
 			"username": user.Name,
-			"tasks":    db.Find(&task),
+			//"tasks":    db.Find(&task),
 		})
 	})
 
 	return r
 }
 
-// DBへの接続を行う関数
-func connectDB() *gorm.DB {
-	dsn := DB_USER + ":" + DB_PASS + "@tcp(" + DB_HOST + ":" + DB_PORT + ")/" + DB_NAME + "?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		// トランザクションの中で整合性を担保するための設定
-		// 今回は特定のレコードに対して複数の操作を行うことはないため性能向上を鑑みてtrueとする
-		// https://gorm.io/docs/performance.html#Disable-Default-Transaction
-		SkipDefaultTransaction: true,
-	})
-	if err != nil {
-		panic(err)
-	}
-	db.Logger = db.Logger.LogMode(logger.Silent)
-
-	sqlDB, err := db.DB()
-	// SetMaxIdleConnsはアイドル状態のコネクションプール内の最大数を設定します
-	sqlDB.SetMaxIdleConns(DB_MAX_IDLE_CONN)
-	// SetMaxOpenConnsは接続済みのデータベースコネクションの最大数を設定します
-	sqlDB.SetMaxOpenConns(DB_MAX_OPEN_CONN)
-	// SetConnMaxLifetimeは再利用され得る最長時間を設定します
-	sqlDB.SetConnMaxLifetime(DB_MAX_LIFETIME)
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
-// 構造体に沿ったテーブルの作成を行う
-func createTable(db *gorm.DB, t []Tables) {
-
-	for _, v := range t {
-		// テーブルの存在をチェックしない場合のみ作る
-		if !db.Migrator().HasTable(v) {
-			// テーブルの作成
-			db.Migrator().CreateTable(v)
-		}
-	}
-}
-
 func main() {
-	// dbへの接続
-	db := connectDB()
-
-	// テーブルの作成を行う
-	type TableList = []Tables
-	var t TableList
-	t = append(t, &User{})
-	t = append(t, &Task{})
-	createTable(db, t)
-
-	r := setupRouter(db)
+	r := setupRouter()
 	r.Run(":8080")
 }
