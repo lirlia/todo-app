@@ -8,7 +8,7 @@ import (
 
 type Task struct {
 	TaskID    int `gorm:"primaryKey"`
-	Name      string
+	Title     string
 	Done      bool
 	Message   string
 	UserID    int `gorm:"foreignKey"`

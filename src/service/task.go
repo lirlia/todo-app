@@ -6,6 +6,7 @@ import (
 
 type TaskService struct{}
 
+// TaskのInsert
 func (TaskService) SetTask(Task *model.Task) error {
 	result := db.Create(&Task)
 	if result.Error != nil {
@@ -14,15 +15,16 @@ func (TaskService) SetTask(Task *model.Task) error {
 	return nil
 }
 
+// Taskの全取得
 func (TaskService) GetTaskList() ([]model.Task, error) {
-	var task model.Task
-	rows, err := db.Find(&task).Rows()
 
+	rows, err := db.Model(&model.Task{}).Where("user_id = ?", 0).Rows()
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
+	var task model.Task
 	var tasks []model.Task
 
 	for rows.Next() {
