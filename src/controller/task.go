@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,23 +9,23 @@ import (
 	"todo.app/service"
 )
 
-type TaskPostRequest struct {
-	Title string `form:"title" binding:"required,max=100"`
+type TaskAddRequest struct {
+	Title string `json:"title" binding:"required,max=100"`
 	// https://github.com/gin-gonic/gin/issues/814
-	Done    *bool  `form:"done" binding:"required"`
-	Message string `form:"message" binding:"required,max=1000"`
-	UserID  int    `form:"userid"`
+	Done    *bool  `json:"done" binding:"required"`
+	Message string `json:"message" binding:"max=1000"`
+	// https://github.com/gin-gonic/gin/issues/737
+	UserID *int `json:"userid" binding:"required"`
 }
 
+// タスク追加時のDB処理を実施
 func TaskAdd(c *gin.Context) {
 
-	// Form(Task)の構造体を用意
-	taskReq := TaskPostRequest{}
+	taskReq := TaskAddRequest{}
 
 	// ポインタを渡してリクエスト内容をバインドする
 	if err := c.Bind(&taskReq); err != nil {
 		c.String(http.StatusBadRequest, "Bad request")
-		fmt.Println(err)
 		return
 	}
 
@@ -35,7 +34,8 @@ func TaskAdd(c *gin.Context) {
 		Title:   taskReq.Title,
 		Done:    *taskReq.Done,
 		Message: taskReq.Message,
-		UserID:  0,
+		// TODO: userid使うときに修正
+		UserID: *taskReq.UserID,
 	}
 
 	TaskService := service.TaskService{}
@@ -64,6 +64,7 @@ func TaskList(c *gin.Context) {
 	})
 }
 
+// TODO: タスク情報の更新
 func TaskUpdate(c *gin.Context) {
 	Task := model.Task{}
 	err := c.Bind(&Task)
@@ -82,19 +83,28 @@ func TaskUpdate(c *gin.Context) {
 	})
 }
 
+// タスクの削除
 func TaskDelete(c *gin.Context) {
-	id := c.PostForm("id")
-	intId, err := strconv.ParseInt(id, 10, 0)
+
+	// taskidをURLから抽出
+	taskid, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, "Bad request")
 		return
 	}
+
+	task := model.Task{
+		TaskID: taskid,
+	}
+
 	TaskService := service.TaskService{}
-	err = TaskService.DeleteTask(int(intId))
-	if err != nil {
+
+	// 削除関数を呼び出し
+	if err := TaskService.DeleteTask(&task); err != nil {
 		c.String(http.StatusInternalServerError, "Server Error")
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"status": "ok",
 	})

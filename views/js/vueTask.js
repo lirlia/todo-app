@@ -4,8 +4,12 @@ var todoapp = new Vue({
 
   // data オブジェクトのプロパティの値を変更すると、ビューが反応し、新しい値に一致するように更新
   data: {
+    // 新規追加タスク
+    newtask: {
+      title: ""
+    },
     // タスク情報
-    tasks: []
+    tasks: []    
   },
 
   // インスタンス作成時の処理
@@ -22,26 +26,26 @@ var todoapp = new Vue({
           if (response.status != 200) {
             throw new Error('レスポンスエラー')
           } else {
-            var resulttasks = response.data
-
             // サーバから取得したタスク情報をdataに設定する
-            this.tasks = resulttasks.data
-            console.log(resulttasks)
+            this.tasks = response.data.data
           }
         })
     },
 
     // タスク情報を登録する
-    /*
     doAddtask() {
       // サーバへ送信するパラメータ
       const params = new URLSearchParams();
-      params.append('taskName', this.taskName)
-      params.append('taskMemo', this.taskMemo)
+      params.append('Title', this.newtask.title)
+      // TODO ログイン実装時にやる
+      params.append('UserID', 0)
+      // TODO message実装時にやる
+      params.append('Message', "")
+      params.append('Done', false)
   
-      axios.post('/addtask', params)
+      axios.post('/api/v1/task/add', params)
         .then(response => {
-          if (response.status != 200) {
+          if (response.status != 201) {
             throw new Error('レスポンスエラー')
           } else {
             // タスク情報を取得する
@@ -52,18 +56,12 @@ var todoapp = new Vue({
           }
         })
     },
-    */
 
     // タスク情報を削除する
-    /*
-    doDeletetask(task) {
-      // サーバへ送信するパラメータ
-      const params = new URLSearchParams();
-      params.append('taskID', task.id)
-  
-      axios.post('/deletetask', params)
+    doDeletetask(id) {
+      axios.delete('/api/v1/task/delete/' + id)
         .then(response => {
-          if (response.status != 200) {
+          if (response.status != 201) {
             throw new Error('レスポンスエラー')
           } else {
             // タスク情報を取得する
@@ -71,6 +69,10 @@ var todoapp = new Vue({
           }
         })
     },
-    */
+    // TODO: タスク情報をアップデートする
+
+    initInputValue() {
+      this.newtask = {}
+    }
   }
 })

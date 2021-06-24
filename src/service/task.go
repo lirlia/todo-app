@@ -18,7 +18,7 @@ func (TaskService) SetTask(Task *model.Task) error {
 // Taskの全取得
 func (TaskService) GetTaskList() ([]model.Task, error) {
 
-	rows, err := db.Model(&model.Task{}).Where("user_id = ?", 0).Rows()
+	rows, err := db.Model(&model.Task{}).Where("user_id = ?", 0).Order("created_at desc").Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -35,14 +35,21 @@ func (TaskService) GetTaskList() ([]model.Task, error) {
 	return tasks, nil
 }
 
-func (TaskService) UpdateTask(newTask *model.Task) error {
+// Taskのアップデート
+func (TaskService) UpdateTask(Task *model.Task) error {
 	// TODO: 後で実装
 	// https://gorm.io/ja_JP/docs/update.html
 	return nil
 }
 
-func (TaskService) DeleteTask(id int) error {
-	// TODO: 後で実装
-	// https://gorm.io/ja_JP/docs/delete.html
+// Taskの削除
+// https://gorm.io/ja_JP/docs/delete.html
+func (TaskService) DeleteTask(Task *model.Task) error {
+
+	//削除処理を実行
+	if err := db.Delete(model.Task{}, Task.TaskID).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
