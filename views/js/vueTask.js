@@ -45,7 +45,7 @@ var todoapp = new Vue({
   
       axios.post('/api/v1/task/add', params)
         .then(response => {
-          if (response.status != 201) {
+          if (response.status != 200) {
             throw new Error('レスポンスエラー')
           } else {
             // タスク情報を取得する
@@ -61,7 +61,7 @@ var todoapp = new Vue({
     doDeletetask(id) {
       axios.delete('/api/v1/task/delete/' + id)
         .then(response => {
-          if (response.status != 201) {
+          if (response.status != 200) {
             throw new Error('レスポンスエラー')
           } else {
             // タスク情報を取得する
