@@ -9,7 +9,8 @@ var todoapp = new Vue({
       Title: ""
     },
     // タスク情報
-    tasks: []
+    tasks: [],
+    can_submit_search: false,
   },
 
   // インスタンス作成時の処理
@@ -19,6 +20,19 @@ var todoapp = new Vue({
 
   // メソッド定義
   methods: {
+    // Enterキーで送信可能にする
+    enable_submit() {
+      this.can_submit_search = true;
+    },
+    // 新規タスク入力時にEnterを押下した時の処理
+    submit() {
+      if (!this.can_submit_search) return;
+
+      // タスクの追加
+      this.doAddtask()
+
+      this.can_submit_search = false;
+    },
     // 全てのタスク情報を取得する
     doFetchAlltasks() {
       axios.get('/api/v1/task/list')

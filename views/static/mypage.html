@@ -52,7 +52,12 @@
                     <button v-on:click="doAddtask" id="add-task" class="button is-link py-0">追加</button>
                   </div>
                   <div class="column is-9 ml-5">
-                    <input v-model="newtask.Title" id="add-task-value" class="input is-link" type="text" minlength="3" maxlength="120" placeholder="新しくTODOを追加する">
+                    <!-- Enter入力については下記を参照
+                      https://r17n.page/2020/04/04/vue-submit-on-enter-japanese/
+                    -->
+                    <input v-model="newtask.Title" @keypress.prevent.enter.exact="enable_submit"
+                      @keyup.prevent.enter.exact="submit" id="add-task-value" class="input is-link" type="text"
+                      minlength="3" maxlength="100" placeholder="新しくTODOを追加する">
                   </div>
                 </div>
 
@@ -70,10 +75,12 @@
                     <div class="checkbox column is-1 py-0 has-text-centered">
                       <input class="task-checkbox" type="checkbox" v-model="task.Done" v-on:change="doUpdatetask(task)">
                     </div>
-                    <input type="text" class="input is-info column py-0" v-model="task.Title" v-on:change="doUpdatetask(task)" :disabled="task.Done">
+                    <input type="text" class="input is-info column py-0" v-model="task.Title"
+                      v-on:change="doUpdatetask(task)" :disabled="task.Done">
 
                     <div class="column is-2 py-0">
-                      <button v-on:click="doDeletetask(task.TaskID)" class="delete-task button is-danger is-outlined is-small">
+                      <button v-on:click="doDeletetask(task.TaskID)"
+                        class="delete-task button is-danger is-outlined is-small">
                         <span>削除</span>
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
