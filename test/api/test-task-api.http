@@ -1,0 +1,30 @@
+### GET ALL TASK
+GET http://localhost:8080/api/v1/task/list
+
+### ADD TASK
+
+POST http://localhost:8080/api/v1/task/add
+Content-Type: application/json
+
+{
+  "title": "家の片付けをする",
+  "done": false,
+  "userid": 0,
+  "message": "特になし"
+}
+
+### UPDATE TASK
+
+PUT http://localhost:8080/api/v1/task/update/2
+Content-Type: application/json
+
+{
+  "title": "家の片付けをします〜!!!",
+  "done": true,
+  "userid": 0,
+  "message": "特になし！！！"
+}
+### DELETE TASK
+
+DELETE http://localhost:8080/api/v1/task/delete/1
+Content-Type: application/json

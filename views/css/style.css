@@ -1,14 +1,11 @@
+[v-cloak] {
+  display:none;
+}
+
 .line-throungh {
   text-decoration: line-through;
 }
 
 .text-decoration-none {
   text-decoration: none;
-}
-
-.background-gray {
-  background-color: gray;
-}
-.background-white {
-  background-color: white;
 }
