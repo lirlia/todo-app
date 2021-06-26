@@ -1,8 +1,6 @@
 package service
 
 import (
-	"fmt"
-
 	"todo.app/model"
 )
 
@@ -44,7 +42,6 @@ func (TaskService) UpdateTask(Task *model.Task) error {
 	// TODO: userも考慮する
 	result := db.Model(&model.Task{}).Where("task_id = ?", Task.TaskID).Updates(Task)
 
-	fmt.Println(Task.Done, Task.UserID)
 	if result.Error != nil {
 		return result.Error
 	}
