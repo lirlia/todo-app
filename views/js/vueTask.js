@@ -140,5 +140,9 @@ var todoapp = new Vue({
       }
       return true
     }
+  },
+  mounted: async function() {
+    // 5秒ごとにサーバのデータを取得する
+    const intervalId = setInterval(await this.doFetchAlltasks, 5000)
   }
 })
