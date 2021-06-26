@@ -9,7 +9,7 @@ import (
 	"todo.app/service"
 )
 
-type TaskAddRequest struct {
+type TaskRequest struct {
 	Title string `json:"title" binding:"required,max=100"`
 	// https://github.com/gin-gonic/gin/issues/814
 	Done    *bool  `json:"done" binding:"required"`
@@ -18,10 +18,10 @@ type TaskAddRequest struct {
 	UserID *int `json:"userid" binding:"required"`
 }
 
-// タスク追加時のDB処理を実施
+// DBへタスクを追加
 func TaskAdd(c *gin.Context) {
 
-	taskReq := TaskAddRequest{}
+	taskReq := TaskRequest{}
 
 	// ポインタを渡してリクエスト内容をバインドする
 	if err := c.Bind(&taskReq); err != nil {
@@ -29,15 +29,14 @@ func TaskAdd(c *gin.Context) {
 		return
 	}
 
-	// DBへ挿入
+	// DBへ挿入用にモデルを構築
 	task := model.Task{
 		Title:   taskReq.Title,
-		Done:    *taskReq.Done,
+		Done:    taskReq.Done,
 		Message: taskReq.Message,
 		// TODO: userid使うときに修正
-		UserID: *taskReq.UserID,
+		UserID: taskReq.UserID,
 	}
-
 	TaskService := service.TaskService{}
 	err := TaskService.SetTask(&task)
 	if err != nil {
@@ -45,7 +44,7 @@ func TaskAdd(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"status": "ok",
 	})
 }
@@ -64,20 +63,41 @@ func TaskList(c *gin.Context) {
 	})
 }
 
-// TODO: タスク情報の更新
+// タスク情報の更新
 func TaskUpdate(c *gin.Context) {
-	Task := model.Task{}
-	err := c.Bind(&Task)
+
+	// ポインタを渡してリクエスト内容をバインドする
+	taskReq := TaskRequest{}
+	if err := c.Bind(&taskReq); err != nil {
+		c.String(http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	// taskidをURLから抽出
+	taskid, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, "Bad request")
 		return
 	}
+
+	// DBへ挿入用にモデルを構築
+	task := model.Task{
+		TaskID:  taskid,
+		Title:   taskReq.Title,
+		Done:    taskReq.Done,
+		Message: taskReq.Message,
+		// TODO: userid使うときに修正
+		UserID: taskReq.UserID,
+	}
+
+	// DBへの書き込み
 	TaskService := service.TaskService{}
-	err = TaskService.UpdateTask(&Task)
+	err = TaskService.UpdateTask(&task)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Server Error")
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"status": "ok",
 	})

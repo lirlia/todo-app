@@ -9,10 +9,11 @@ import (
 type Task struct {
 	TaskID    int `gorm:"primaryKey"`
 	Title     string
-	Done      bool
+	Done      *bool `gorm:"default:false"`
 	Message   string
-	UserID    int `gorm:"foreignKey"`
+	UserID    *int `gorm:"foreignKey"`
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (Task) TableName() string {

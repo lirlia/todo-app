@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"todo.app/model"
 )
 
@@ -9,6 +11,7 @@ type TaskService struct{}
 // TaskのInsert
 func (TaskService) SetTask(Task *model.Task) error {
 	result := db.Create(&Task)
+
 	if result.Error != nil {
 		return result.Error
 	}
@@ -36,9 +39,15 @@ func (TaskService) GetTaskList() ([]model.Task, error) {
 }
 
 // Taskのアップデート
+// https://gorm.io/ja_JP/docs/update.html
 func (TaskService) UpdateTask(Task *model.Task) error {
-	// TODO: 後で実装
-	// https://gorm.io/ja_JP/docs/update.html
+	// TODO: userも考慮する
+	result := db.Model(&model.Task{}).Where("task_id = ?", Task.TaskID).Updates(Task)
+
+	fmt.Println(Task.Done, Task.UserID)
+	if result.Error != nil {
+		return result.Error
+	}
 	return nil
 }
 

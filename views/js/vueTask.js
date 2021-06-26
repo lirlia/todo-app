@@ -6,10 +6,10 @@ var todoapp = new Vue({
   data: {
     // 新規追加タスク
     newtask: {
-      title: ""
+      Title: ""
     },
     // タスク情報
-    tasks: []    
+    tasks: []
   },
 
   // インスタンス作成時の処理
@@ -30,30 +30,42 @@ var todoapp = new Vue({
             this.tasks = response.data.data
           }
         })
+        .catch(error => {
+          console.log(error);
+          window.alert("ToDoリストの取得に失敗しました")
+        })
     },
 
     // タスク情報を登録する
     doAddtask() {
+
+      // 更新値のチェック
+      if (!this.ValidationCheck(this.newtask)) { return }
+
       // サーバへ送信するパラメータ
       const params = new URLSearchParams();
-      params.append('Title', this.newtask.title)
+      params.append('Title', this.newtask.Title)
       // TODO ログイン実装時にやる
       params.append('UserID', 0)
       // TODO message実装時にやる
       params.append('Message', "")
       params.append('Done', false)
-  
+
       axios.post('/api/v1/task/add', params)
         .then(response => {
-          if (response.status != 200) {
+          if (response.status != 201) {
             throw new Error('レスポンスエラー')
           } else {
             // タスク情報を取得する
             this.doFetchAlltasks()
-  
+
             // 入力値を初期化する
             this.initInputValue()
           }
+        })
+        .catch(error => {
+          console.log(error);
+          window.alert("ToDoリストへの追加に失敗しました")
         })
     },
 
@@ -68,11 +80,51 @@ var todoapp = new Vue({
             this.doFetchAlltasks()
           }
         })
+        .catch(error => {
+          console.log(error);
+          window.alert("ToDoリストからの削除に失敗しました")
+        })
     },
-    // TODO: タスク情報をアップデートする
+    // タスク情報をアップデートする
+    doUpdatetask(task) {
 
+      // 更新値のチェック
+      if (!this.ValidationCheck(task)) { return }
+
+      // サーバへ送信するパラメータ
+      const params = new URLSearchParams();
+      params.append('Title', task.Title)
+      // TODO ログイン実装時にやる
+      params.append('UserID', 0)
+      // TODO message実装時にやる
+      params.append('Message', "")
+      params.append('Done', task.Done)
+
+      axios.put('/api/v1/task/update/' + task.TaskID, params)
+        .then(response => {
+          if (response.status != 201) {
+            throw new Error('レスポンスエラー')
+          } else {
+            // タスク情報を取得する
+            this.doFetchAlltasks()
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          window.alert("ToDoリストへの更新に失敗しました")
+        })
+    },
     initInputValue() {
-      this.newtask = {}
+      this.newtask = {
+        Title: ""
+      }
+    },
+    ValidationCheck(task) {
+      if (task.Title.length < 2 || task.Title.length > 100) {
+        window.alert("タスク名は2~100文字におさめてください")
+        return false
+      }
+      return true
     }
   }
 })
