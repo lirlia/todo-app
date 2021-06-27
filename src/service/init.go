@@ -45,6 +45,7 @@ func init() {
 	var t TableList
 	t = append(t, &model.User{})
 	t = append(t, &model.Task{})
+	t = append(t, &model.TaskOrder{})
 
 	for _, v := range t {
 		// テーブルの存在をチェックしない場合のみ作る

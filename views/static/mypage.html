@@ -75,36 +75,9 @@
               <a>Forks</a>-->
                 </p>
                 <!--既存のTODO-->
-                <div id="task-list" v-cloak>
-                  <draggable @end="draggableEnd" v-bind="options">
-                    <div class="columns py-1 is-vcentered" v-for="(task, index) in tasks" v-if="!task.Done">
-                      <div class="checkbox column is-1 py-0 has-text-centered">
-                        <input class="task-checkbox" type="checkbox" v-model="task.Done"
-                          v-on:change="doUpdatetask(task)">
-                      </div>
-                      <input type="text" class="input is-info column py-0" v-model="task.Title"
-                        v-on:change="doUpdatetask(task)" :disabled="task.Done">
-
-                      <div class="column is-2 py-0">
-                        <button v-on:click="doDeletetask(task.TaskID)"
-                          class="delete-task button is-danger is-outlined is-small">
-                          <span>削除</span>
-                          <span class="icon is-small">
-                            <i class="fas fa-times"></i>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </draggable>
-                </div>
-              </div>
-            </div>
-            <!--完了済みのTODO-->
-            <div class="content panel pb-5">
-              <p class="panel-tabs py-3 is-size-5 has-text-left">完了済み</p>
-              <div id="done-task-list" v-cloak>
-                <draggable @end="draggableEnd" v-bind="options">
-                  <div class="columns py-1 is-vcentered" v-for="(task, index) in tasks" v-if="task.Done">
+                <draggable v-model="tasks" @end="draggableEnd" v-bind="options" element="div" id="task-list" v-cloak>
+                  <div v-bind:id="task.TaskID" class="columns py-1 is-vcentered" v-for="(task, index) in tasks"
+                    v-if="!task.Done">
                     <div class="checkbox column is-1 py-0 has-text-centered">
                       <input class="task-checkbox" type="checkbox" v-model="task.Done" v-on:change="doUpdatetask(task)">
                     </div>
@@ -123,6 +96,30 @@
                   </div>
                 </draggable>
               </div>
+            </div>
+            <!--完了済みのTODO-->
+            <div class="content panel pb-5">
+              <p class="panel-tabs py-3 is-size-5 has-text-left">完了済み</p>
+              <draggable v-model="tasks" @end="draggableEnd" v-bind="options" element="div" id="done-task-list" v-cloak>
+                <div v-bind:id="task.TaskID" class="columns py-1 is-vcentered" v-for="(task, index) in tasks"
+                  v-if="task.Done">
+                  <div class="checkbox column is-1 py-0 has-text-centered">
+                    <input class="task-checkbox" type="checkbox" v-model="task.Done" v-on:change="doUpdatetask(task)">
+                  </div>
+                  <input type="text" class="input is-info column py-0" v-model="task.Title"
+                    v-on:change="doUpdatetask(task)" :disabled="task.Done">
+
+                  <div class="column is-2 py-0">
+                    <button v-on:click="doDeletetask(task.TaskID)"
+                      class="delete-task button is-danger is-outlined is-small">
+                      <span>削除</span>
+                      <span class="icon is-small">
+                        <i class="fas fa-times"></i>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </draggable>
             </div>
           </div>
         </div>

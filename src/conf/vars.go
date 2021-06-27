@@ -3,13 +3,14 @@ package conf
 import "time"
 
 const (
-	DB_NAME            = "todo"
-	DB_USER            = "root"
-	DB_PASS            = "password"
-	DB_HOST            = "localhost"
-	DB_PORT            = "3306"
-	DB_USER_TABLE_NAME = "user"
-	DB_TASK_TABLE_NAME = "task"
+	DB_NAME                 = "todo"
+	DB_USER                 = "root"
+	DB_PASS                 = "password"
+	DB_HOST                 = "localhost"
+	DB_PORT                 = "3306"
+	DB_USER_TABLE_NAME      = "user"
+	DB_TASK_TABLE_NAME      = "task"
+	DB_TASKORDER_TABLE_NAME = "taskOrder"
 
 	DB_INSERT_BATCHSIZE = 3000
 

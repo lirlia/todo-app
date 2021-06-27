@@ -11,6 +11,9 @@ var todoapp = new Vue({
     // タスク情報
     tasks: [],
     can_submit_search: false,
+    options: {
+      animation: 200
+    },
   },
 
   // インスタンス作成時の処理
@@ -33,6 +36,7 @@ var todoapp = new Vue({
 
       this.can_submit_search = false;
     },
+
     // 全てのタスク情報を取得する
     doFetchAlltasks() {
       axios.get('/api/v1/task/list')
@@ -48,6 +52,7 @@ var todoapp = new Vue({
           console.log(error);
           window.alert("ToDoリストの取得に失敗しました")
         })
+      return
     },
 
     // タスク情報を登録する
@@ -125,23 +130,63 @@ var todoapp = new Vue({
         })
         .catch(error => {
           console.log(error);
-          window.alert("ToDoリストへの更新に失敗しました")
+          window.alert("ToDoリストの更新に失敗しました")
         })
     },
+    // タスクの順序をVMから取得する
+    doFetchTaskVMOrder() {
+      return this.tasks.map((e) => e.TaskID)
+    },
+
+    // タスクの順序をアップデートする
+    doUpdateTaskOrder() {
+
+      // 現在の配列の順序を取得
+      taskOrderList = this.doFetchTaskVMOrder()
+
+      // サーバへ送信するパラメータ
+      const params = new URLSearchParams();
+      params.append('OrderList', taskOrderList)
+      // TODO ログイン実装時にやる
+      params.append('UserID', 0)
+
+      // APIを実行し順序を送信する
+      axios.put('/api/v1/taskOrder/update', params)
+        .then(response => {
+          if (response.status != 201) {
+            throw new Error('レスポンスエラー')
+          } else {
+            // タスク情報を取得する
+            this.doFetchAlltasks()
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          window.alert("ToDoリストの更新に失敗しました")
+        })
+    },
+    // 初期値を表示する
     initInputValue() {
       this.newtask = {
         Title: ""
       }
     },
+    // 入力値のチェックを行う
     ValidationCheck(task) {
       if (task.Title.length < 2 || task.Title.length > 100) {
         window.alert("タスク名は2~100文字におさめてください")
         return false
       }
       return true
+    },
+    // タスクを入れ替えた時の発火処理
+    draggableEnd(event) {
+
+      // 順序変更のAPIを呼び出す
+      this.doUpdateTaskOrder()
     }
   },
-  mounted: async function() {
+  mounted: async function () {
     // 5秒ごとにサーバのデータを取得する
     const intervalId = setInterval(await this.doFetchAlltasks, 5000)
   }
