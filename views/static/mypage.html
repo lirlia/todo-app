@@ -19,6 +19,11 @@
 
   <!-- Vueインスタンス -->
   <script src="/views/js/vueTask.js" defer></script>
+
+  <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
+  <script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+  <!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
 </head>
 
 <body>
@@ -42,7 +47,7 @@
           <div class="column">
             <div class="content">
 
-              <div class="panel is-primary">
+              <div class="panel is-primary pb-5">
                 <p class="panel-heading">
                   usernameさんの ToDoリスト
                 </p>
@@ -60,7 +65,7 @@
                       minlength="3" maxlength="100" placeholder="新しくTODOを追加する">
                   </div>
                 </div>
-
+                <!--タグ-->
                 <p class="panel-tabs">
                   <a class="is-active">All</a>
                   <!-- TODO: タグ付け作る
@@ -71,7 +76,35 @@
                 </p>
                 <!--既存のTODO-->
                 <div id="task-list" v-cloak>
-                  <div class="panel-block columns py-1" v-for="(task, index) in tasks">
+                  <draggable @end="draggableEnd" v-bind="options">
+                    <div class="columns py-1 is-vcentered" v-for="(task, index) in tasks" v-if="!task.Done">
+                      <div class="checkbox column is-1 py-0 has-text-centered">
+                        <input class="task-checkbox" type="checkbox" v-model="task.Done"
+                          v-on:change="doUpdatetask(task)">
+                      </div>
+                      <input type="text" class="input is-info column py-0" v-model="task.Title"
+                        v-on:change="doUpdatetask(task)" :disabled="task.Done">
+
+                      <div class="column is-2 py-0">
+                        <button v-on:click="doDeletetask(task.TaskID)"
+                          class="delete-task button is-danger is-outlined is-small">
+                          <span>削除</span>
+                          <span class="icon is-small">
+                            <i class="fas fa-times"></i>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </draggable>
+                </div>
+              </div>
+            </div>
+            <!--完了済みのTODO-->
+            <div class="content panel pb-5">
+              <p class="panel-tabs py-3 is-size-5 has-text-left">完了済み</p>
+              <div id="done-task-list" v-cloak>
+                <draggable @end="draggableEnd" v-bind="options">
+                  <div class="columns py-1 is-vcentered" v-for="(task, index) in tasks" v-if="task.Done">
                     <div class="checkbox column is-1 py-0 has-text-centered">
                       <input class="task-checkbox" type="checkbox" v-model="task.Done" v-on:change="doUpdatetask(task)">
                     </div>
@@ -88,7 +121,7 @@
                       </button>
                     </div>
                   </div>
-                </div>
+                </draggable>
               </div>
             </div>
           </div>
