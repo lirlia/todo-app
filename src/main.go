@@ -28,6 +28,12 @@ func setupRouter() *gin.Engine {
 			task_api.PUT("/update/:id", controller.TaskUpdate)
 			task_api.DELETE("/delete/:id", controller.TaskDelete)
 		}
+
+		// タスクの並び順に関するAPI
+		taskOrder_api := v1.Group("/taskOrder")
+		{
+			taskOrder_api.PUT("/update", controller.TaskOrderUpdate)
+		}
 	}
 	/*
 		r.GET("/", func(c *gin.Context) {
@@ -47,6 +53,9 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
+	// 初期処理(後で消す)
+	controller.TaskOrderAdd(0)
+
 	r := setupRouter()
 	r.Run("127.0.0.1:8080")
 }

@@ -2,9 +2,11 @@ package controller
 
 import (
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	. "todo.app/lib"
 	"todo.app/model"
 	"todo.app/service"
 )
@@ -52,14 +54,29 @@ func TaskAdd(c *gin.Context) {
 // 登録されているタスクの一覧を取得
 func TaskList(c *gin.Context) {
 	TaskService := service.TaskService{}
-	TaskLists, err := TaskService.GetTaskList()
+	taskList, err := TaskService.GetTaskList()
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Server Error")
 		return
 	}
+
+	// TODO: UserID
+	// タスクの順序を取得
+	userid := 0
+	orderList, err := TaskOrderGet(userid)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Server Error")
+		return
+	}
+
+	// タスクの順序に従ってソート
+	sort.Slice(taskList, func(i, j int) bool {
+		return Index(orderList, taskList[i].TaskID) < Index(orderList, taskList[j].TaskID)
+	})
+
 	c.JSONP(http.StatusOK, gin.H{
 		"message": "ok",
-		"data":    TaskLists,
+		"data":    taskList,
 	})
 }
 
